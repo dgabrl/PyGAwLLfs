@@ -34,7 +34,7 @@ This project expects datasets in .dat format and must contain some informations 
 
 * **`MODEL:`** BOSON
 * **`TYPE:`** 1
-* * **`N_ATTRIBUTES:`** 28
+*  **`N_ATTRIBUTES:`** 28
 * **`N_EXAMPLES:`** 52035
 * **`N_CLASSES:`** 2
 * **`DATASET:`** 

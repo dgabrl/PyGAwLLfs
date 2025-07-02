@@ -80,7 +80,7 @@ To modify parameters, edit `src/main.py` or `src/core/gawll.py` directly.
     ```
 
 3.  **Prepare Data:**
-    Place your `.dat` dataset files into the **`data/`** folder at the project's root.
+    Place your `.dat` dataset files into the **`data/`** folder.
 
 4.  **Execute the Main Script:**
     Run the algorithm. Outputs will be saved in the `results/` folder.

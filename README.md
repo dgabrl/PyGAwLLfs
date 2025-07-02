@@ -64,7 +64,7 @@ Additionally, the **`linkage_learning`** parameter (found in the `GAwLL` class i
 
 More internal GAwLL variables (e.g., ***`POPULATION_SIZE`***, ***`CROSSOVER_RATE`***, ***`TAU_RESET_GENERATION`***) are in `src/core/gawll.py`.
 
-**When running the algorithm**, you must provide a **random seed** to the `instance.run()` method (e.g., `instance.run(seed=42)`). This ensures reproducibility of results.
+**When running the algorithm**, you can provide a desired **random seed** to the `instance.run()` method (e.g., `instance.run(seed=42)`) in 'main.py'. 
 
 ## **Setup and Run**
 

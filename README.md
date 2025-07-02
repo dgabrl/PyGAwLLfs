@@ -38,8 +38,10 @@ N_EXAMPLES: 52035
 N_CLASSES: 2  
 DATASET:    
 0.09409524016143742 0.5679407716028971 0.6030046997760847 0.2272047042336912 0.4103571856511061 0.13799260150096007 0.4060363444059322 0.04393373374730941 1.0 0.0770715016874201 0.46339839505646385 0.8645376774482116 1.0 0.02866574415584571 0.2689229596616497 0.7099737489713134 0.0 0.004542887262786788 0.27192398782781174 0.4996672837213508 0.0 0.010722967773972105 0.06055278722293059 0.1961549317791694 0.09241450027036263 0.059804938787505896 0.1129895419655916 0.09976952838731448 1  
-#... more data rows follow
+#... more data rows follow  
 
+* **Dataset Path:**
+    * **`DATASETS` list**: To include new datasets in the overall list of available datasets for the project, modify the `DATASETS` list in `src/util.py`.
 ---
 
 ## **Algorithm Configuration**
@@ -63,9 +65,6 @@ Additionally, the **`linkage_learning`** parameter (found in the `GAwLL` class i
 More internal GAwLL variables (e.g., ***`POPULATION_SIZE`***, ***`CROSSOVER_RATE`***, ***`TAU_RESET_GENERATION`***) are in `src/core/gawll.py`.
 
 **When running the algorithm**, you must provide a **random seed** to the `instance.run()` method (e.g., `instance.run(seed=42)`). This ensures reproducibility of results.
-
-* **Dataset Path:**
-    * **`DATASETS` list**: To include new datasets in the overall list of available datasets for the project, modify the `DATASETS` list in `src/util.py`.
 
 ## **Setup and Run**
 

@@ -17,7 +17,7 @@ PyGAwLLfs/
 │   └── main.py          # Project entry point.  
 └── requirements.txt     # Python dependencies.  
 ---
-## **Data Format**
+## **Dataset**
 
 This project expects datasets in .dat format and must contain some informations about the problem. 
 * **MODEL**: name of the dataset. 

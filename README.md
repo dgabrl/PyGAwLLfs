@@ -52,13 +52,13 @@ DATASET:
 * ***`chrom_size`***: number of features (read from `.dat` header).
 * ***`mutation_probability`***: gene mutation likelihood (based on `chrom_size`).
 * ***`fitness_function`***: evaluates subset quality via ML model performance; penalizes large subsets.
-* **ML Model Parameters**: specific ML model settings (`max_depth`, 'min_samples_split' for tree-based models, 'k' for knn, 'learning_rate_initi', 'max_iter', and 'hidden_layer_sizes' for mlp).
-* **'variables'**: list of the variables names of the dataset (for boson by default).
-* **'model_type'**: ML model that will be use for fitness evaluation:    
-      - '"rf"' for Random Forest.    
-      - '"dt"' for Decision Tree.    
-      - '"knn"' for KNN.    
-      - '"mlp"' for MLP.    
+* **ML Model Parameters**: specific ML model settings (`max_depth`, `min_samples_split` for tree-based models, `k` for knn, `learning_rate_initi`, `max_iter`, and `hidden_layer_sizes` for mlp).
+* **`variables`**: list of the variables names of the dataset (for boson by default).
+* **`model_type`**: ML model that will be use for fitness evaluation:    
+      - `"rf"` for Random Forest.    
+      - `"dt"` for Decision Tree.    
+      - `"knn"` for KNN.    
+      - `"mlp"` for MLP.    
   
 Additionally, the **`linkage_learning`** parameter (found in the `GAwLL` class instantiation within `src/main.py`) controls whether the algorithm uses linkage learning (`True`) or a standard genetic algorithm (`False`).
 

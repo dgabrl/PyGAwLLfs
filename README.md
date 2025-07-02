@@ -52,11 +52,11 @@ DATASET:
 * ***`fitness_function`***: evaluates subset quality via ML model performance; penalizes large subsets.
 * **ML Model Parameters**: specific ML model settings (`max_depth`, 'min_samples_split' for tree-based models, 'k' for knn, 'learning_rate_initi', 'max_iter', and 'hidden_layer_sizes' for mlp).
 * **'variables'**: list of the variables names of the dataset (for boson by default).
-* **'model_type'**: ML model that will be use for fitness evaluation:
-      - '"rf"' for Random Forest.
-      - '"dt"' for Decision Tree.
-      - '"knn"' for KNN.
-      - '"mlp"' for MLP.
+* **'model_type'**: ML model that will be use for fitness evaluation:    
+      - '"rf"' for Random Forest.    
+      - '"dt"' for Decision Tree.    
+      - '"knn"' for KNN.    
+      - '"mlp"' for MLP.    
   
 Additionally, the **`linkage_learning`** parameter (found in the `GAwLL` class instantiation within `src/main.py`) controls whether the algorithm uses linkage learning (`True`) or a standard genetic algorithm (`False`).
 
@@ -64,7 +64,8 @@ More internal GAwLL variables (e.g., ***`POPULATION_SIZE`***, ***`CROSSOVER_RATE
 
 **When running the algorithm**, you must provide a **random seed** to the `instance.run()` method (e.g., `instance.run(seed=42)`). This ensures reproducibility of results.
 
-To modify parameters, edit `src/main.py` or `src/core/gawll.py` directly.
+* **Dataset Path:**
+    * **`DATASETS` list**: To include new datasets in the overall list of available datasets for the project, modify the `DATASETS` list in `src/util.py`.
 
 ## **Setup and Run**
 

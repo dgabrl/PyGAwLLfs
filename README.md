@@ -7,16 +7,15 @@ This project implements a **Genetic Algorithm with Linkage Learning (GAwLL)** fo
 ## **Project Structure**
 
 PyGAwLLfs/
-├── src/                 # All source code.
-│   ├── core/            # GAwLL core logic (e.g., GAwLL class, eVIG, importance, linkage learning mutation).
-│   ├── data/            # Datasets (.dat files).
-│   ├── models/          # ML models (Decision Tree, KNN, MLP, RandomForest).
-│   ├── results/         # Saved execution outputs (PNG, CSV, TXT).
-│   ├── util/            # Utilities (dataset handling, statistics, value saving).
-│   ├── visualization/   # Plotting for analysis (interaction graphs, importances).
-│   └── main.py          # Project entry point.
-└── requirements.txt     # Python dependencies.
-
+src/             # All source code.
+core/            # GAwLL core logic.
+data/            # Datasets (.dat files).
+models/          # ML models.
+results/         # Saved execution outputs (PNG, CSV, TXT).
+util/            # Utilities.
+visualization/   # Plotting for analysis.
+main.py          # Project entry point.
+requirements.txt     # Python dependencies.
 ---
 ## **Data Format**
 

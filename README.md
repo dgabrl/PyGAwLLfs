@@ -41,7 +41,7 @@ DATASET:
 #... more data rows follow  
 
 * **Dataset Path:**
-    * **`DATASETS` list**: To include new datasets in the overall list of available datasets for the project, modify the `DATASETS` list in `src/util.py`.
+    * **`DATASETS` list**: to include new datasets in the overall list of available datasets for the project, modify the `DATASETS` list in `src/util.py` and place your `.dat` dataset file into the **`data/`** folder.
 ---
 
 ## **Algorithm Configuration**
@@ -84,11 +84,7 @@ More internal GAwLL variables (e.g., ***`POPULATION_SIZE`***, ***`CROSSOVER_RATE
     ```bash
     pip install -r requirements.txt
     ```
-
-3.  **Prepare Data:**
-    Place your `.dat` dataset files into the **`data/`** folder.
-
-4.  **Execute the Main Script:**
+3.  **Execute the Main Script:**
     Run the algorithm. Outputs will be saved in the `results/` folder.
     ```bash
     python -m src.main

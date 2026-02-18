@@ -98,7 +98,7 @@ For fine-grained control or cluster execution, call `src/main.py` directly.
 
 **Optional Arguments (Evolutionary and XAI)**
 | Argument | Default | Description |
-| :--- | :----: | ---: |
+| :--- | :----: | :--- |
 | `--seed` | 42 | Base random seed for reproducibility. |
 | `--n_runs` | 10 | Number of independent GA executions per experiment. |
 | `--pop_size` | 50 | Size of the population. |
@@ -111,7 +111,7 @@ For fine-grained control or cluster execution, call `src/main.py` directly.
 
 **Model Hyperparameters**
 | Argument | Default | Description |
-| :--- | :----: | ---: |
+| :--- | :----: | :--- |
 | `--mlp_hidden` | "(8,)" | Hidden layer architecture for MLP. |
 | `--knn_k` | 3 | K neighbors for KNN. |
 

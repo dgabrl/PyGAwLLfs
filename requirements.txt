@@ -1,7 +1,14 @@
+# Data & Numerical Operations
 numpy
+pandas
+scipy
+
+# Machine Learning (Estimators & Metrics)
 scikit-learn
+
+# Visualization & Graphs
 matplotlib
 networkx
-seaborn
-scipy
-cachetools
+
+# System Monitoring (Escada de RAM)
+psutil

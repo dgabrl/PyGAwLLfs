@@ -1,95 +1,169 @@
-from src.core.gawll import GAwLL
-from src.util.util import Util
+"""
+Main Entry Point for the GAwLL Research Framework.
+
+Orchestrates experiments by parsing CLI arguments, managing environment
+variables for Linux performance, and delegating execution to the Pipeline.
+"""
+
+import argparse
+import ast
+import sys
+import gc
+import os
+from pathlib import Path
+
+# Ensure absolute/relative imports work correctly from the project root
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
+from src.config.variables_config import get_variables_names
+from src.utils.statistic import Statistics
 from src.models.machine_learning_model import DT, KNN, MLP, RandomForest
-from src.visualization.histogram_correlation import Histogram, Correlation
+from src.visualization.barplot import BarPlot
 from src.visualization.graph import Graph
 from src.visualization.values import SaveValues
-import numpy as np
+from src.core.pipeline import GAwLLPipeline
+from src.config.hardware_config import MODEL_N_JOBS
+from src.utils.experiment_logger import ExperimentLogger
 
-def model_training(dataset_type, model_name, X_trainset, d_trainset,
-                   hidden_layer_sizes, learning_rate_init, max_iter,
-                   min_samples_split_dt, k, max_depth, min_samples_split_rf):
-    if model_name == 'dt':
-        dt = DT(dataset_type=dataset_type, min_samples_split=min_samples_split_dt)
-        dt.fit(X_trainset, d_trainset)
-        model = dt
-
-    elif model_name == 'knn':
-        knn = KNN(dataset_type=dataset_type, k=k)
-        knn.fit(X_trainset, d_trainset)
-        model = knn
-
-    elif model_name == 'mlp':
-        mlp = MLP(
-            dataset_type=dataset_type,
-            hidden_layer_sizes=hidden_layer_sizes,
-            learning_rate_init=learning_rate_init,
-            max_iter=max_iter,
-        )
-        mlp.fit(X_trainset, d_trainset)
-        model = mlp
-
-    elif model_name == 'rf':
-        rf = RandomForest(dataset_type=dataset_type, max_depth=max_depth,
-                          min_samples_split=min_samples_split_rf)
-        rf.fit(X_trainset, d_trainset)
-        model = rf
-
-    return model
-
-def run_gawll(model, model_name,X_testset, d_testset, chrom_size):
-    mutation_probability = 1.0 / chrom_size
-
-    fitness_function = lambda chromosome: 0.98 * model.evaluate(
-        X_testset, d_testset, dimensions=chromosome
-    ) + 0.02 * (1 - np.mean(chromosome))
-
-    instance = GAwLL(
-        fitness_function=fitness_function,
-        chrom_size=chrom_size,
-        mutation_probability=mutation_probability,
-        max_generations=max_generations,
-    )
-    print("Running GAwLL...\n")
-    instance.run(42)
-    instance.best_individual(model_name)
-    print("Run finished\n")
-    return np.array(instance.importance.get_importance()), instance.evig.interaction_matrix()
-
-(dataset_type, chrom_size, X_trainset, d_trainset, X_testset, d_testset) = (
-        Util.read_dataset('boson', perc_train=0.70)
-)
-
-variables = ['lepton_pT','lepton_eta','lepton_phi','missing_energy_magnitude','missing_energy_phi','jet1pt','jet1eta','jet1phi',
-           'jet1b-tag','jet2pt','jet2eta','jet2phi','jet2b-tag','jet3pt','jet3eta','jet3phi','jet3b-tag','jet4pt','jet4eta',
-           'jet4phi','jet4b-tag','m_jj','m_jjj','m_lv','m_jlv','m_bb','m_wbb','m_wwbb']
+# --- LINUX PERFORMANCE TUNING ---
+# Disable multi-threading in low-level libraries to prevent CPU contention
+# when running GA evaluations in parallel.
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
 
-max_generations = 100
-hidden_layer_sizes = (8,)
-learning_rate_init = 0.1
-max_iter = 500
-min_samples_split_dt = 5
-k = 3
-max_depth = 10
-min_samples_split_rf = 4
-top_variables = 5
+def get_model_instance(model_name: str, args: argparse.Namespace):
+    """
+    Maps a model identifier string to its class and respective hyperparameter arguments.
+    """
+    try:
+        if model_name == 'dt':
+            return DT, {}
+        elif model_name == 'rf':
+            return RandomForest, {'n_jobs': MODEL_N_JOBS}
+        elif model_name == 'knn':
+            return KNN, {'k': args.knn_k, 'n_jobs': MODEL_N_JOBS}
+        elif model_name == 'mlp':
+            hidden_layers = ast.literal_eval(args.mlp_hidden)
+            return MLP, {'hidden_layer_sizes': hidden_layers}
+        else:
+            print(f"    [WARNING] Model '{model_name}' not recognized.")
+            return None, None
+    except Exception as e:
+        print(f"    [ERROR] Configuration error for model {model_name}: {e}")
+        return None, None
 
-model_name = 'rf'
 
-model = model_training(dataset_type, model_name, X_trainset, d_trainset,
-                       hidden_layer_sizes, learning_rate_init, max_iter,
-                       min_samples_split_dt, k, max_depth, min_samples_split_rf)
+def main():
+    """
+    Parses CLI arguments and executes the experimental pipeline.
+    """
+    parser = argparse.ArgumentParser(description="GAwLL Framework: XAI-Enhanced Feature Selection")
 
-imp_gawll, int_matrix_gawll = run_gawll(model, model_name, X_testset, d_testset, chrom_size)
+    # --- Required Arguments ---
+    parser.add_argument("--datasets", nargs='+', required=True,
+                        help="Datasets to process (e.g., boson zoo)")
+    parser.add_argument("--models", nargs='+', required=True,
+                        help="ML models to evaluate (e.g., dt rf knn mlp)")
+    parser.add_argument("--seed", type=int, default=42,
+                        help="Base random seed for reproducibility")
 
-sv_instance = SaveValues()
-sv_instance.save_importances(imp_gawll, f'{model_name}-GAwLL importances')
-sv_instance.save_interaction_matrix(int_matrix_gawll, f'{model_name}-GAwLL interaction matrix')
+    # --- Evolutionary Algorithm Parameters ---
+    parser.add_argument("--n_runs", type=int, default=10,
+                        help="Number of independent GA executions per experiment")
+    parser.add_argument("--pop_size", type=int, default=50,
+                        help="Population size")
+    parser.add_argument("--max_gen", type=int, default=100,
+                        help="Maximum number of generations")
+    parser.add_argument("--cross_rate", type=float, default=0.8,
+                        help="Crossover probability")
+    parser.add_argument("--tau_reset", type=int, default=50,
+                        help="Generations without improvement before population reset")
 
-graph_instance = Graph()
-graph = graph_instance.graph(int_matrix_gawll, variables, model_name)
-graph_instance.reduced_graph(graph, model_name)
+    # --- XAI and Linkage Settings (Opt-out Logic) ---
+    parser.add_argument("--no_linkage", action="store_false", dest="linkage_learning",
+                        help="Deactivate Linkage Learning (default is True)")
+    parser.set_defaults(linkage_learning=True)
 
-histogram_instance = Histogram()
-histogram_instance.histogram(variables, model_name, imp_gawll, None)
+    parser.add_argument("--no_compare", action="store_false", dest="compare_methods",
+                        help="Deactivate comparative methods like Permutation/Intrinsic (default is True)")
+    parser.set_defaults(compare_methods=True)
+
+    # --- Output and Hyperparameters ---
+    parser.add_argument("--top_n", type=int, default=10,
+                        help="Number of top features to display in reports")
+    parser.add_argument("--mlp_hidden", type=str, default="(16,8)",
+                        help="Hidden layer architecture for MLP")
+    parser.add_argument("--knn_k", type=int, default=3,
+                        help="K neighbors for KNN")
+
+    args = parser.parse_args()
+
+    # Shared SQL logger for hardware and timing metrics
+    db_logger = ExperimentLogger()
+
+    # Logical Synchronization: Comparison requires Linkage results to be meaningful
+    effective_compare = args.compare_methods if args.linkage_learning else False
+
+    # --- Main Experiment Loop ---
+    for ds_name in args.datasets:
+        # Fetch human-readable variable names
+        vars_names = get_variables_names(ds_name)
+        if not vars_names:
+            print(f"    [SKIPPING] Dataset '{ds_name}' not found in variable config.")
+            continue
+
+        for m_name in args.models:
+            # Instantiate Statistics with its visual and saving handlers
+            stats = Statistics(BarPlot(), Graph(), SaveValues(), db_logger)
+            pipeline = GAwLLPipeline(stats)
+
+            model_class, model_args = get_model_instance(m_name, args)
+            if model_class is None:
+                continue
+
+            config = {
+                'seed': args.seed,
+                'n_runs': args.n_runs,
+                'model_label': m_name,
+                'dataset_name': ds_name,
+                'variables': vars_names,
+                'top_n': args.top_n,
+                'compare_methods': effective_compare,
+                'ga_params': {
+                    'pop_size': args.pop_size,
+                    'max_generations': args.max_gen,
+                    'crossover_rate': args.cross_rate,
+                    'tau_reset': args.tau_reset,
+                    'linkage_learning': args.linkage_learning
+                }
+            }
+
+            print(f"\n" + "═" * 75)
+            print(f" STARTING EXPERIMENT: {ds_name.upper()} ║ MODEL: {m_name.upper()}")
+            print(f" CONFIG: Linkage={args.linkage_learning} | Compare={effective_compare}")
+            print("═" * 75)
+
+            try:
+                pipeline.run_experiment(ds_name, model_class, model_args, config)
+            except Exception as e:
+                import traceback
+                print(f"\n    [CRITICAL ERROR] Experiment failed for {ds_name}/{m_name}: {e}")
+                traceback.print_exc()
+                continue
+            finally:
+                # Force memory cleanup between different model/dataset pairs
+                del pipeline
+                del stats
+                gc.collect()
+
+    db_logger.close()
+    print("\n" + "═" * 75)
+    print(" ALL SCHEDULED EXPERIMENTS COMPLETED SUCCESSFULLY.")
+    print("═" * 75)
+
+
+if __name__ == "__main__":
+    main()

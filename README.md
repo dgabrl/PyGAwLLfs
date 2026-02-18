@@ -16,7 +16,7 @@ The V2 implementation introduces significant architectural and algorithmic upgra
 
 ### 📂 `src/core/`
 * **GA Operators:** Core logic for selection, crossover, and mutation.
-* **Linkage Learning Mutation:** The engine that builds interaction graphs and estimates $V_{Int}$ and $V_{Imp}$ during the mutation phase.
+* **Linkage Learning Mutation:** The engine that builds interaction graphs and estimates $VInt$ and $VImp$ during the mutation phase.
 * **Pipeline:** Orchestrates independent runs, manages hardware resources, and implements the **RAM Escalator**.
 
 ### 📂 `src/models/`

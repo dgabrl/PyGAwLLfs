@@ -3,7 +3,7 @@ Pipeline Module for GAwLL Execution.
 
 Orchestrates data loading, parallel execution environments,
 and the integration between the Genetic Algorithm and Machine Learning models.
-Includes dynamic RAM management and peak memory logging for Linux environments.
+Includes dynamic RAM management and peak memory logging.
 """
 
 import time
@@ -57,7 +57,7 @@ class GAwLLPipeline:
         Executes the full experiment suite for a given dataset/model combination.
         """
         try:
-            # Loading data using the refactored Util method
+            # Loading data
             (dataset_type, chrom_size, X_train, y_train, X_test, y_test) = (
                 Util.load_dataset(dataset_name, train_ratio=0.70)
             )
@@ -126,7 +126,7 @@ class GAwLLPipeline:
 
             # --- EXECUTION BLOCK ---
             try:
-                  # 2. GAwLL Execution
+                  # 1. GAwLL Execution
                   ga = GAwLL(perf_batch=batch_evaluator,
                              chrom_size=chrom_size,
                              mutation_probability=1.0 / chrom_size,
@@ -136,7 +136,7 @@ class GAwLLPipeline:
                   ga.run(current_seed)
                   t_gawll = time.time() - start_gawll
   
-                  # 3. Comparative Methods
+                  # 2. Comparative Methods
                   t_perm, t_intr = 0.0, 0.0
                   imp_perm, imp_intr = None, None
                   if is_linkage_enabled and config['compare_methods']:
@@ -155,7 +155,7 @@ class GAwLLPipeline:
                       del model
                       gc.collect()
   
-                  # 5. Getting the data
+                  # 4. Getting the data
                   # Results from the Feature Selection problem: Individual (chromosome, fitness, performance)
                   res_fs = ga.get_feature_selection_results()
                   best_ind_run.append(res_fs)
@@ -215,7 +215,6 @@ class GAwLLPipeline:
                 time.sleep(3) 
 
         # --- Save Outputs ---
-        # 1. Verifique o nome da vari�vel (linkage_enabled)
         if not is_linkage_enabled:
             self.stats.save_feature_selection_statistics(best_ind_run, config)
             self.stats.db_logger.finalize_summary(id_group)
